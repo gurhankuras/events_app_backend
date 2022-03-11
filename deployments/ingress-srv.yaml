@@ -5,6 +5,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: 'true'
+    nginx.ingress.kubernetes.io/websocket-services: "chat-srv"
 spec:
   rules:
     - host: 'gkevents.com'
@@ -13,5 +14,13 @@ spec:
           - path: /api/users/?(.*)
             backend:
               serviceName: auth-srv
+              servicePort: 3000
+          - path: /api/chat/?(.*)
+            backend:
+              serviceName: chat-srv
+              servicePort: 3000
+          - path: /socket.io/.*
+            backend:
+              serviceName: chat-srv
               servicePort: 3000
     

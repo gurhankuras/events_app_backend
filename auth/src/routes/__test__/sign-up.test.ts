@@ -99,6 +99,16 @@ it('sets cookie if user successfully signs up', async () => {
     expect(res.get('Set-Cookie')).toBeDefined()
 });
 
+it('sets access token as header if user successfully signs up', async () => {
+    const res = await request(app)
+        .post(testRoute)
+        .send({
+            email: aValidEmail,
+            password: aValidPassword
+        })
+    expect(res.get('access-token')).toBeDefined()
+});
+
 
 function expectErrorMessageEqual(res: request.Response, message: string) {
     expect(res.body[0].message).toBe(message)

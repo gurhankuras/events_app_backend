@@ -1,7 +1,7 @@
 import 'express-async-errors'
 import mongoose from 'mongoose';
 import { app } from './app';
-import { logger } from './utils/logger';
+import { logger } from '@gkeventsapp/common';
 
 const PORT = 3000
 const start = async () => {
@@ -9,8 +9,13 @@ const start = async () => {
     logger.debug('calisti')
     logger.error('demo error')
     logger.warn('demo warning')
+
+    if (!process.env.MONGO_URI) {
+        throw new Error("MONGO_URI env value not found!")
+    }
+    
     try {
-        await mongoose.connect("mongodb://auth-mongo-srv:27017/auth", {});
+        await mongoose.connect(process.env.MONGO_URI, {});
         logger.info('Database connected! -auth')  
     } catch (error) {
         logger.error(error)

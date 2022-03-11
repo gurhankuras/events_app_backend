@@ -1,7 +1,6 @@
 import express from 'express'
 import { Request, Response } from 'express'
-import { currentUser } from '../middlewares/current-user';
-import { requiresAuth } from '../middlewares/requires-auth';
+import { currentUser, requiresAuth } from '@gkeventsapp/common';
 
 const router = express.Router()
 

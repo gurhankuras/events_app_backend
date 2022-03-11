@@ -5,8 +5,7 @@ import { currentUserRouter } from './routes/current-user';
 import { signinRouter } from './routes/sign-in';
 import { signoutRouter } from './routes/sign-out';
 import { signupRouter } from './routes/sign-up';
-import { errorHandler } from './middlewares/error-handler';
-import { NotFoundError } from './errors/not-found-error';
+import { errorHandler, NotFoundError } from '@gkeventsapp/common'
 import cookieSession from 'cookie-session'; 
 
 const app = express();

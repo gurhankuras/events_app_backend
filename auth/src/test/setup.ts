@@ -1,10 +1,10 @@
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
-import { app } from '../app'
-import { logger } from '../utils/logger'
+import { logger } from '@gkeventsapp/common'
 
 let mongo: MongoMemoryServer
 jest.useFakeTimers('legacy')
+
 beforeAll(async () => {
     logger.level = 'info'
     process.env.JWT_KEY = 'dummy'

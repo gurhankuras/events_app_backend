@@ -1,13 +1,10 @@
 const bcrypt = require("bcrypt");
 import express from 'express'
 import { Request, Response } from 'express'
-import { body, validationResult } from 'express-validator';
-import { BadRequestError } from '../errors/bad-request-error';
-import { RequestValidationError } from '../errors/request-validation-error';
+import { body } from 'express-validator';
 import { User } from '../models/user';
 import jwt from 'jsonwebtoken'
-import { validateRequest } from '../middlewares/validate-request';
-import { logger } from '../utils/logger';
+import { logger, validateRequest, BadRequestError } from '@gkeventsapp/common'
 
 const router = express.Router()
 
@@ -45,11 +42,12 @@ async (req: Request, res: Response) => {
     const userJwt = jwt.sign({
         id: user.id,
         email: user.email
-    }, process.env.JWT_KEY!)
+    }, process.env.JWT_KEY!, { expiresIn: 60 * 60 })
 
     req.session = {
         jwt: userJwt
     }
+    res.setHeader('access-token', userJwt)
 
     res.status(200).send(user)
 });

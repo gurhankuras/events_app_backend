@@ -1,12 +1,9 @@
 import express from 'express'
 import { Request, Response } from 'express'
-import { body, validationResult } from 'express-validator'
-import { BadRequestError } from '../errors/bad-request-error';
-import { NotFoundError } from '../errors/not-found-error';
-import { RequestValidationError } from '../errors/request-validation-error';
+import { body } from 'express-validator'
 import { User } from '../models/user';
 import jwt from 'jsonwebtoken'
-import { validateRequest } from '../middlewares/validate-request';
+import { validateRequest, logger, BadRequestError } from '@gkeventsapp/common';
 
 const router = express.Router()
 
@@ -25,7 +22,7 @@ router.post('/api/users/signup',
 
 validateRequest,
 async (req: Request, res: Response) => {
-    
+    logger.debug('signup route')
     const { email, password } = req.body;
 
     const user = await User.findOne({ email })
@@ -40,12 +37,15 @@ async (req: Request, res: Response) => {
     const userJwt = jwt.sign({
         id: newUser.id,
         email: newUser.email
-    }, process.env.JWT_KEY!)
+    }, process.env.JWT_KEY!, { expiresIn: 60 * 60 })
 
     req.session = {
         jwt: userJwt
     }
 
+    res.setHeader('access-token', userJwt)
+
+    logger.debug('User got successfully signed in')
     res.status(201).send(newUser)
 });
 

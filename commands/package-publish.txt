@@ -1,0 +1,4 @@
+git commands (add and publish)
+npm version patch 
+npm run build
+npm publish
