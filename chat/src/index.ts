@@ -3,11 +3,15 @@ import express, {Request, Response} from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import mongoose from 'mongoose';
+import 'express-async-errors'
+
 import { Conversation } from "../models/conversation";
-import { ChatMessage } from "../models/chat";
+import { ChatMessage } from "../models/chat-single";
 import { json } from 'body-parser'
-import { fetchMessagesRouter } from "../routes/fetch-chat-messages";
+import { fetchMessagesRouter } from "../routes/fetch-messages";
 import { newMessageRouter } from "../routes/new-message";
+import { errorHandler, NotFoundError } from "@gkeventsapp/common";
+import { fetchRoomsRouter } from "../routes/fetch-rooms";
 const app = express();
 const server = createServer(app)
 const io = new Server(server, { allowEIO3: true });
@@ -47,11 +51,18 @@ app.use(json())
 
 app.use(fetchMessagesRouter)
 app.use(newMessageRouter)
+app.use(fetchRoomsRouter)
 
 app.get("/api/chat", async (request, response) => {
     console.log('api/chat')
     response.send(dummyMessages)
 });
+
+app.all('*', async () => {
+    throw new NotFoundError();
+})
+
+app.use(errorHandler)
 
 
 const PORT = 3000

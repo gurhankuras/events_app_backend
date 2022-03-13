@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@gkeventsapp/common": "^1.0.2",
+    "@gkeventsapp/common": "^1.0.4",
     "@types/cookie-session": "^2.0.44",
     "@types/express": "^4.17.13",
     "@types/mongoose": "^5.11.97",

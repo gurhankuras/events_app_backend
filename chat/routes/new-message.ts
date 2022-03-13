@@ -1,29 +1,13 @@
 import express from 'express'
 import { Request, Response } from 'express'
 import mongoose from 'mongoose';
-
-import { ChatMessage } from '../models/chat';
+import { ChatBucket } from '../models/chat-bucket';
+import { body, query, param } from 'express-validator'
+import { ChatMessage } from '../models/chat-single';
 import { Conversation } from '../models/conversation';
+import { NotAuthorizedError, validateRequest } from '@gkeventsapp/common';
 
 const router = express.Router()
-
-
-
-
-router.post("/api/chat/conversation/messages", async (req: Request, res: Response) => {
-    console.log(req.body)
-
-    let message = ChatMessage.build({ 
-        conversationId: req.body.chatId,
-
-        sender: {id: req.body.senderId, image: "https://images.unsplash.com/photo-1638913974071-ad0045d13691?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1974&q=80", name: "Bitcoin Bey" },
-        sentAt: new Date(),
-        text: req.body.text
-    }) 
-
-    await message.save()
-    return res.send(message);
-})
 
 router.post("/api/chat/conversation", async (req: Request, res: Response) => {
     let conv = Conversation.build({
@@ -33,6 +17,63 @@ router.post("/api/chat/conversation", async (req: Request, res: Response) => {
     await conv.save()
     return res.send(conv);
 })
+
+router.post("/api/chat/rooms/:roomId", [
+    body('sender')
+    .trim()
+    .isString()
+    .not()
+    .isEmpty()
+    .withMessage("sender must be provided"),
+
+    body('text')
+    .trim()
+    .isString()
+    .not()
+    .isEmpty()
+    .withMessage('text must be provided'),
+
+    param('roomId')
+    .trim()
+    .isString()
+    .not()
+    .isEmpty()
+    .withMessage("roomId must be provided")
+], validateRequest, async (req: Request, res: Response) => {
+    let convId = req.params.roomId as string
+    let sender = req.body.sender as string
+    let text = req.body.text as string;
+
+    let conversation = await Conversation.findOne( {
+        _id: convId,  
+        participants: { $all: [ new mongoose.Types.ObjectId(sender) ] } 
+    })
+    console.log(conversation)
+    if (!conversation) {
+        throw new NotAuthorizedError();
+    }
+
+    let newDate = new Date()
+ 
+    console.log('Burada')
+    
+    let a = await ChatBucket.updateOne({roomId: new mongoose.Types.ObjectId(convId), count: { $lt: 30 }, creationDate: {$lt: newDate}}, {
+        "$push": {
+            "messages": {
+                sender: new mongoose.Types.ObjectId(sender),
+                sentAt: newDate,
+                text: text
+            }
+        },
+            "$inc": {"count": 1},
+            "$setOnInsert": { "creationDate": newDate }
+        },
+        {upsert: true}
+    )
+    res.send(a)
+})
+
+
 
 // currentUser, requiresAuth,
 

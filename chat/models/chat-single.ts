@@ -6,17 +6,21 @@ interface ChatMessageAttributes {
         id: mongoose.Types.ObjectId,
         name: string;
         image: string;
-    },
-    text: string
-    sentAt: Date
-    conversationId: mongoose.Types.ObjectId
+    };
+    text: string;
+    sentAt: Date;
+    conversationId: mongoose.Types.ObjectId;
 }
 
 interface ChatMessageDoc extends mongoose.Document {
-    sender: string
-    text: string
-    sentAt: Date
-    conversationId: mongoose.Types.ObjectId
+    sender: {
+        id: mongoose.Types.ObjectId,
+        name: string;
+        image: string;
+    };
+    text: string;
+    sentAt: Date;
+    conversationId: mongoose.Types.ObjectId;
 }
 
 interface ChatMessageModel extends mongoose.Model<ChatMessageDoc> {
