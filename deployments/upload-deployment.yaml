@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: upload-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: upload
+  template:
+    metadata:
+      labels:
+        app: upload
+    spec:
+      containers:
+        - name: upload
+          image: gurhankuras/upload
+          env:
+            - name: AWS_S3_BUCKET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-s3-bucket-secret
+                  key: AWS_S3_BUCKET_ACCESS_KEY
+            - name: AWS_S3_BUCKET_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-s3-bucket-secret
+                  key: AWS_S3_BUCKET_SECRET_ACCESS_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: upload-srv
+spec:
+  selector:
+    app: upload
+  ports:
+    - name: upload
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

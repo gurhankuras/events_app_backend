@@ -7,7 +7,7 @@ import { ChatBucket } from '../models/chat-bucket';
 
 const router = express.Router()
 
-router.get("/api/chat/rooms/:roomId", 
+router.get("/api/chat/rooms/:roomId/messages", 
 [
     param('roomId')
     .isString()

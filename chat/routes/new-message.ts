@@ -18,7 +18,7 @@ router.post("/api/chat/conversation", async (req: Request, res: Response) => {
     return res.send(conv);
 })
 
-router.post("/api/chat/rooms/:roomId", [
+router.post("/api/chat/rooms/:roomId/messages", [
     body('sender')
     .trim()
     .isString()
@@ -56,6 +56,14 @@ router.post("/api/chat/rooms/:roomId", [
     let newDate = new Date()
  
     console.log('Burada')
+
+    let b = await Conversation.updateOne({_id: new mongoose.Types.ObjectId(convId)}, {
+        lastMessage: {
+            senderName: "Gurhan",
+            sentAt: newDate,
+            text: text
+        }
+    })
     
     let a = await ChatBucket.updateOne({roomId: new mongoose.Types.ObjectId(convId), count: { $lt: 30 }, creationDate: {$lt: newDate}}, {
         "$push": {

@@ -1,5 +1,10 @@
 import { logger } from '@gkeventsapp/common';
 import nats from 'node-nats-streaming'
+import { Publisher } from './events/base-publisher';
+import { Subjects } from './events/subjects';
+import { TicketCreatedEvent } from './events/ticket-created-event';
+import { TicketCreatedPublisher } from './events/ticket-created-publisher';
+
 logger.level = 'debug'
 
 console.clear()
@@ -13,11 +18,10 @@ stan.on('connect', () => {
 
     const data = {
         id: "123",
-        price: 20
+        title: "",
+        price: "20"
     }
 
-    let json = JSON.stringify(data)
-    stan.publish('ticket:create', json, () => {
-        logger.debug('event published')
-    })
+   new TicketCreatedPublisher(stan).publish(data)
 });
+
