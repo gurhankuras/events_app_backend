@@ -12,6 +12,7 @@ interface ConversationDoc extends mongoose.Document {
         senderName: string;
         sentAt: Date;
     };
+    createdAt: Date
 }
 
 interface ConversationModel extends mongoose.Model<ConversationDoc> {
@@ -35,13 +36,15 @@ let ConversationSchema = new mongoose.Schema({
         required: true,
     },
 }, {
+    timestamps: true,
     toJSON: {
         transform(doc, ret) {
             ret.id = ret._id
             delete ret._id
         },
         versionKey: false,
-    }
+    },
+    
 })
 
 ConversationSchema.statics.build = function (attrs: ConversationAttributes) {
@@ -52,4 +55,4 @@ ConversationSchema.statics.build = function (attrs: ConversationAttributes) {
 const Conversation = mongoose.model<ConversationDoc, ConversationModel>('Conversation', ConversationSchema)
 
 
-export { Conversation }
+export { Conversation, ConversationDoc }

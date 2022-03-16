@@ -5,7 +5,7 @@ import { ChatBucket } from '../models/chat-bucket';
 import { body, query, param } from 'express-validator'
 import { ChatMessage } from '../models/chat-single';
 import { Conversation } from '../models/conversation';
-import { NotAuthorizedError, validateRequest } from '@gkeventsapp/common';
+import { logger, NotAuthorizedError, validateRequest } from '@gkeventsapp/common';
 
 const router = express.Router()
 
@@ -27,10 +27,7 @@ router.post("/api/chat/rooms/:roomId/messages", [
     .withMessage("sender must be provided"),
 
     body('text')
-    .trim()
     .isString()
-    .not()
-    .isEmpty()
     .withMessage('text must be provided'),
 
 
@@ -46,21 +43,19 @@ router.post("/api/chat/rooms/:roomId/messages", [
     let text = req.body.text as string;
     let image = req.body.image
 
-    console.log("NEW-MESSAGE ENDPOINT")
+    logger.debug("NEW-MESSAGE ENDPOINT")
 
     let conversation = await Conversation.findOne( {
         _id: convId,  
         participants: { $all: [ new mongoose.Types.ObjectId(sender) ] } 
     })
-    console.log(conversation)
+
     if (!conversation) {
         throw new NotAuthorizedError();
     }
 
     let newDate = new Date()
  
-    console.log('Burada')
-
     let b = await Conversation.updateOne({_id: new mongoose.Types.ObjectId(convId)}, {
         lastMessage: {
             senderName: "Gurhan",

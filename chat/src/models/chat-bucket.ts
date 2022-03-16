@@ -26,10 +26,8 @@ import mongoose from "mongoose";
 
 
 interface ChatBucketAttributes {
-    text: string;
     roomId: mongoose.Types.ObjectId,
     creationDate: Date;
-    sentAt: Date;
 }
 
 interface ChatBucketDoc extends mongoose.Document {
