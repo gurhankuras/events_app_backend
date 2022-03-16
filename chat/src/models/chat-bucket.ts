@@ -37,6 +37,7 @@ interface ChatBucketDoc extends mongoose.Document {
         sender: mongoose.Types.ObjectId;
         text: string;
         sentAt: Date;
+        image: string;
     }[];
     creationDate: Date;
     count: number;
@@ -60,7 +61,8 @@ let ChatBucketSchema = new mongoose.Schema({
         type: [{
             sender: mongoose.Types.ObjectId,
             text: String,
-            sentAt: Date
+            sentAt: Date,
+            image: String
         }],
         required: false,
         default: []

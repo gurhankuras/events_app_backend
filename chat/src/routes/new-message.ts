@@ -33,6 +33,7 @@ router.post("/api/chat/rooms/:roomId/messages", [
     .isEmpty()
     .withMessage('text must be provided'),
 
+
     param('roomId')
     .trim()
     .isString()
@@ -43,6 +44,9 @@ router.post("/api/chat/rooms/:roomId/messages", [
     let convId = req.params.roomId as string
     let sender = req.body.sender as string
     let text = req.body.text as string;
+    let image = req.body.image
+
+    console.log("NEW-MESSAGE ENDPOINT")
 
     let conversation = await Conversation.findOne( {
         _id: convId,  
@@ -70,7 +74,8 @@ router.post("/api/chat/rooms/:roomId/messages", [
             "messages": {
                 sender: new mongoose.Types.ObjectId(sender),
                 sentAt: newDate,
-                text: text
+                text: text,
+                image: image,
             }
         },
             "$inc": {"count": 1},
