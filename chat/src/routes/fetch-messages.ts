@@ -15,13 +15,11 @@ router.get("/api/chat/rooms/:roomId/messages",
 
     query('page')
     .optional()
-    .default(0)
     .isInt({min: 0})
     .withMessage('page must be valid'),
 
     query('limit')
     .optional()
-    .default(1)
     .isInt({min: 1})
     .withMessage('limit must be valid'),
 
@@ -35,11 +33,9 @@ validateRequest,
 
 async (req: Request, res: Response) => {
     let roomId = req.params.roomId as string
-    let page =  Number.parseInt(req.query.page as string)
-    let limit = Number.parseInt(req.query.limit as string)
+    let page =  Number.parseInt((req.query.page || '0') as string)
+    let limit = Number.parseInt((req.query.limit || '1') as string)
     let after = req.query.after
-
-    console.log('Burada')
 
     let filter = { roomId: new mongoose.Types.ObjectId(roomId) }
     
@@ -47,12 +43,11 @@ async (req: Request, res: Response) => {
         // @ts-ignore
         filter.creationDate = {$gt: after}
     }
-    
     // TODO: index for roomId
     let chat = await ChatBucket.find(filter)
     // TODO: index for creationDate
     .sort({creationDate: -1})
-    .skip(page)
+    .skip(page * limit)
     .limit(limit)
     
     res.send(chat)

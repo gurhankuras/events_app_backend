@@ -92,7 +92,7 @@ async function makeRoom(userId: string, otherUserId: string) {
 
 
 
-function id(room: ConversationDoc): string {
+function id(room: mongoose.Document): string {
     return room._id.toString()
 }
 
