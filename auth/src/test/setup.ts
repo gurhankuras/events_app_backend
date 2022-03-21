@@ -5,6 +5,9 @@ import { logger } from '@gkeventsapp/common'
 let mongo: MongoMemoryServer
 jest.useFakeTimers('legacy')
 
+// Test-wide mock
+jest.mock('../nats-wrapper')
+
 beforeAll(async () => {
     logger.level = 'info'
     process.env.JWT_KEY = 'dummy'
@@ -15,6 +18,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+    jest.clearAllMocks()
     await truncateDatabase()
 })
 

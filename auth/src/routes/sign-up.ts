@@ -4,6 +4,8 @@ import { body } from 'express-validator'
 import { User } from '../models/user';
 import jwt from 'jsonwebtoken'
 import { validateRequest, logger, BadRequestError } from '@gkeventsapp/common';
+import { UserCreatedPublisher } from '../events/publishers/user-created-publisher';
+import { natsWrapper } from '../nats-wrapper';
 
 const router = express.Router()
 
@@ -33,6 +35,13 @@ async (req: Request, res: Response) => {
     const newUser = User.build({ email, password })
 
     await newUser.save();
+    
+    await new UserCreatedPublisher(natsWrapper.client).publish({
+        email: newUser.email,
+        id: newUser.id,
+        name: newUser.email.split('@')[0],
+    })
+    
 
     const userJwt = jwt.sign({
         id: newUser.id,

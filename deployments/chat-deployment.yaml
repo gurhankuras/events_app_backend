@@ -21,6 +21,16 @@ spec:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_KEY
+            - name: NATS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: nats-config
+                  key: NATS_URL
+            - name: NATS_CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: nats-config
+                  key: NATS_CLUSTER_ID
             - name: MONGO_URI
               value: mongodb://chat-mongo-srv:27017/chat
             

@@ -8,22 +8,11 @@ import { Conversation } from '../models/conversation';
 const router = express.Router()
 
 router.get("/api/chat/rooms", 
-[
-    query('userId')
-    .trim()
-    .isString()
-    .withMessage('userId must be valid'),
-],
-validateRequest,
 currentUser,
 requiresAuth,
 
 async (req: Request, res: Response) => {
-    let userId = req.query.userId as string
-
-    if (req.currentUser?.id !== userId) {
-        throw new NotAuthorizedError()
-    }
+    let userId = req.currentUser!.id as string
 
     let conversations = await Conversation.find( {
         participants: { $all: [ new mongoose.Types.ObjectId(userId) ] } 

@@ -7,6 +7,9 @@ const PORT = 3000
 
 const start = async () => {
     logger.level = 'debug'
+    if (!process.env.JWT_KEY) {
+        throw new Error("JWT_KEY not provided")
+    }
    
     app.listen(3000, () => {
        

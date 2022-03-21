@@ -5,11 +5,13 @@ import mongoose from "mongoose";
 interface UserAttributes {
     email: string;
     password: string;
+    //image: string
 }
 
 interface UserDoc extends mongoose.Document {
     email: string;
     password: string;
+    //image: string
 }
 
 interface UserModel extends mongoose.Model<UserDoc> {
@@ -19,6 +21,12 @@ interface UserModel extends mongoose.Model<UserDoc> {
 
 
 let userSchema = new mongoose.Schema({
+    /*
+    image: {
+        type: String,
+        
+    },
+    */
     email: {
         type: String,
         required: true,

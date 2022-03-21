@@ -1,10 +1,6 @@
-import { logger } from '@gkeventsapp/common';
+import { logger, UserCreatedEvent } from '@gkeventsapp/common';
 import nats from 'node-nats-streaming'
-import { Publisher } from './events/base-publisher';
-import { Subjects } from './events/subjects';
-import { TicketCreatedEvent } from './events/ticket-created-event';
-import { TicketCreatedPublisher } from './events/ticket-created-publisher';
-
+import { UserCreatedEventPublisher } from './events/user-created-publisher'
 logger.level = 'debug'
 
 console.clear()
@@ -13,15 +9,22 @@ const stan = nats.connect('gkevents', 'publisher', {
     url: 'http://localhost:4222',
 })
 
-stan.on('connect', () => {
+stan.on('connect', async () => {
     logger.info('publisher connected')
 
-    const data = {
+    const data: UserCreatedEvent['data'] = {
         id: "123",
-        title: "",
-        price: "20"
+        email: 'gurhankuras@hotmail.com',
+        name: 'Gurhan Kuras',
     }
 
-   new TicketCreatedPublisher(stan).publish(data)
+   const publisher = new UserCreatedEventPublisher(stan)
+   
+   try {
+        await publisher.publish(data)    
+   } catch (error) {
+       console.log(error)
+   }
+   
 });
 

@@ -5,13 +5,19 @@ import { ChatBucket } from '../models/chat-bucket';
 import { body, query, param } from 'express-validator'
 import { ChatMessage } from '../models/chat-single';
 import { Conversation } from '../models/conversation';
-import { logger, NotAuthorizedError, validateRequest } from '@gkeventsapp/common';
+import { currentUser, logger, NotAuthorizedError, requiresAuth, validateRequest } from '@gkeventsapp/common';
 
 const router = express.Router()
 
-router.post("/api/chat/conversation", async (req: Request, res: Response) => {
+router.post("/api/chat/conversation", 
+currentUser, 
+requiresAuth, 
+async (req: Request, res: Response) => {
     let conv = Conversation.build({
-        participants: [new mongoose.Types.ObjectId(), new mongoose.Types.ObjectId()]
+        participants: [
+            new mongoose.Types.ObjectId("6238668a43a6cca1284b48e0"), 
+            new mongoose.Types.ObjectId()
+        ]
     })
 
     await conv.save()

@@ -1,8 +1,8 @@
 import { logger } from '@gkeventsapp/common';
-import { randomBytes, randomInt } from 'crypto';
-import nats, { Message, Stan } from 'node-nats-streaming'
-import { Listener } from './events/base-listener';
-import { TicketCreatedListener } from './events/ticket-created-listener';
+import { randomBytes } from 'crypto';
+import nats from 'node-nats-streaming'
+import { UserCreatedListener } from './events/user-created-listener';
+
 logger.level = 'debug'
 
 console.clear()
@@ -16,7 +16,7 @@ stan.on('connect', () => {
         logger.debug('NATS connection closed!')
         process.exit()
     })
-    new TicketCreatedListener(stan).listen()
+    new UserCreatedListener(stan).listen()
 });
 
 process.on('SIGINT', () => stan.close())

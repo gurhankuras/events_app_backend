@@ -1,7 +1,9 @@
 import request from 'supertest'
 import { app } from '../../app'
 import { User } from '../../models/user';
+import { natsWrapper } from '../../nats-wrapper';
 import { invalidPasswordErrorMessage } from '../sign-up';
+
 
 let aValidEmail = 'test@test.com'
 let aValidPassword = 'password'
@@ -107,6 +109,17 @@ it('sets access token as header if user successfully signs up', async () => {
             password: aValidPassword
         })
     expect(res.get('access-token')).toBeDefined()
+});
+
+it("publishes event when user successfully signed up", async () => {
+    await request(app)
+        .post(testRoute)
+        .send({
+            email: aValidEmail,
+            password: aValidPassword
+        })
+        .expect(201)
+    expect(natsWrapper.client.publish).toHaveBeenCalledTimes(1)
 });
 
 

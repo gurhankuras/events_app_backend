@@ -19,18 +19,11 @@ const email = 'test@test.com'
 
 it("should return 401 when token not provided", async () => {
     await request(app)
-    .get(`/api/chat/rooms?userId=${userId}`)
+    .get(`/api/chat/rooms`)
     .send()
     .expect(401);
 })
 
-it("should return 401 when authorized user tries to access other user's messages", async () => {
-    await request(app)
-    .get(`/api/chat/rooms?userId=${otherUserId}`)
-    .set('access-token', signIn())
-    .send()
-    .expect(401);
-})
 
 it("should return empty array when there is no room the user in", async () => {
     const response = await makeRequest()
@@ -106,7 +99,7 @@ async function makeTwoRoom() {
 async function makeRequest() {
     const token = signIn()
     const response = await request(app)
-                .get(`/api/chat/rooms?userId=${userId}`)
+                .get(`/api/chat/rooms`)
                 .set('access-token', token)
                 .send()
                 .expect(200);
