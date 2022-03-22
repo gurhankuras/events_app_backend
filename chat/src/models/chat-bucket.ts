@@ -47,6 +47,27 @@ interface ChatBucketModel extends mongoose.Model<ChatBucketDoc> {
     build(attrs: ChatBucketAttributes): ChatBucketDoc
 }
 
+const messageSchema = new mongoose.Schema({
+    text: String,
+    sender: {
+        type: mongoose.Types.ObjectId,
+        ref: 'User'
+    },
+    image: {
+        type: String,
+        required: false
+    },
+    sentAt: Date
+},
+{
+    toJSON: {
+        transform(doc, ret) {
+            ret.id = ret._id
+            delete ret._id
+        },
+    }
+}
+);
 
 
 let ChatBucketSchema = new mongoose.Schema({
@@ -56,12 +77,7 @@ let ChatBucketSchema = new mongoose.Schema({
     },
 
     messages: {
-        type: [{
-            sender: mongoose.Types.ObjectId,
-            text: String,
-            sentAt: Date,
-            image: String
-        }],
+        type: [messageSchema],
         required: false,
         default: []
     },
@@ -74,7 +90,17 @@ let ChatBucketSchema = new mongoose.Schema({
         type: Date,
         //required: true
     }
-})
+},
+{
+    toJSON: {
+        transform(doc, ret) {
+            ret.id = ret._id
+            delete ret._id
+        },
+        versionKey: false,
+    }
+}
+)
 
 ChatBucketSchema.statics.build = function (attrs: ChatBucketAttributes) {
     return new ChatBucket(attrs);

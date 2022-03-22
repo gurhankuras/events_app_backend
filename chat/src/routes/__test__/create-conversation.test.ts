@@ -3,7 +3,7 @@ import request from 'supertest'
 import { app } from '../../app';
 import { Conversation, ConversationDoc } from '../../models/conversation';
 import jwt from 'jsonwebtoken'
-import { makeUser, signIn } from '../../test/utils';
+import { makeUser, signIn } from '../../test/shared-utils';
 
 const userId = '507f191e810c19729de860ec'
 const otherUserId = '507f191e810c19729de860ea'
@@ -54,7 +54,6 @@ it("should return 201 with room info", async () => {
     .expect(201);
 
     const room = res.body
-    console.log(room)
     expect(room.participants.length).toEqual(2)
     expect(room.participants.length).toEqual(2)
     expect(room.id).toBeDefined()

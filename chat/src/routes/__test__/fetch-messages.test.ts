@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import request from 'supertest'
 import { app } from '../../app';
 import { ChatBucket } from '../../models/chat-bucket';
-import { id, ids, iso, makeRoom, makeUser } from '../../test/utils';
+import { id, ids, iso, makeRoom, makeUser, signIn } from '../../test/shared-utils';
 
 const aRoomId = '6231dac6aba6adb436c4988c'
 const userId = '507f191e810c19729de860ec'
@@ -71,13 +71,13 @@ describe('request validation errors', () => {
 
 // TODO: add auth and related tests
 describe('auth errors', () => {
-    it("should return 200 with empty array when has no messages yet", async () => {
+    it("should return 200 with empty array when has no messages yet3", async () => {
         const user = await makeUser(userId);
         const otherUser = await makeUser(otherUserId);
         const room = await makeRoom(user, otherUser);
         
         const response = await request(app)
-                .get(`/api/chat/rooms/${id(room)}/messages`)
+                .get(`/api/chat/rooms/${room.id}/messages`)
                 .send()
                 .expect(200);
     
@@ -86,34 +86,35 @@ describe('auth errors', () => {
 })
 
 describe('in controller', () => {
-    it("should return 200 with empty array when has no messages yet", async () => {
+    it("should return 200 with empty array when has no messages yet1", async () => {
         const user = await makeUser(userId);
         const otherUser = await makeUser(otherUserId);
         const room = await makeRoom(user, otherUser);
         
         const response = await request(app)
-                .get(`/api/chat/rooms/${id(room)}/messages`)
+                .get(`/api/chat/rooms/${room.id}/messages`)
                 .send()
                 .expect(200);
     
         expect(response.body).toEqual([])
     })
     
-    it("should return 200 with empty array when has no messages yet", async () => {
+    it("should return 200 with empty array when has no messages yet2", async () => {
+        const token = signIn()
         const user = await makeUser(userId);
         const otherUser = await makeUser(otherUserId);
         const room = await makeRoom(user, otherUser);
         
         await request(app)
-            .post(`/api/chat/rooms/${id(room)}/messages`)
+            .post(`/api/chat/rooms/${room.id}/messages`)
+            .set('access-token', token)
             .send({
-                sender: userId,
                 text: 'text'
             })
             .expect(200);
     
         const response = await request(app)
-                .get(`/api/chat/rooms/${id(room)}/messages`)
+                .get(`/api/chat/rooms/${room.id}/messages`)
                 .send()
                 .expect(200);
     
@@ -134,7 +135,7 @@ describe('in controller', () => {
         const buckets = response.body as Array<any> 
     
         expect(buckets.length).toEqual(1)
-        expect(id(buckets[0])).toEqual(id(secondBucket))
+        expect(buckets[0].id).toEqual(id(secondBucket))
     })
     
     it("should return 200 with buckets sorted by creation date", async () => {
@@ -149,7 +150,7 @@ describe('in controller', () => {
                 .expect(200);
       
         const buckets = response.body as Array<any> 
-        expect(buckets.map(b => b._id)).toEqual([id(thirdBucket), id(secondBucket), id(firstBucket)])
+        expect(buckets.map(b => b.id)).toEqual([thirdBucket.id, secondBucket.id, firstBucket.id])
     })
     
     it("should return 200 with buckets created after the specified timestamp", async () => {
@@ -165,7 +166,7 @@ describe('in controller', () => {
                 .expect(200);
       
         const buckets = response.body as Array<any> 
-        expect(buckets[0]._id).toEqual(id(thirdBucket))
+        expect(buckets[0].id).toEqual(thirdBucket.id)
     })
     
     it("tests limit query", async () => {
@@ -199,7 +200,7 @@ describe('in controller', () => {
         const buckets = response.body as Array<any> 
     
         expect(buckets.length).toEqual(2)
-        expect(ids(buckets)).toEqual([id(secondBucket), id(firstBucket)])
+        expect(buckets.map(doc => doc.id)).toEqual([secondBucket.id, firstBucket.id])
     })
 })
 

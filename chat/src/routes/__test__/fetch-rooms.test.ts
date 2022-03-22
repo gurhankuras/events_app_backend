@@ -3,7 +3,7 @@ import request from 'supertest'
 import { app } from '../../app';
 import { Conversation, ConversationDoc } from '../../models/conversation';
 import jwt from 'jsonwebtoken'
-import { addLastMessage, id, makeRoom, makeTwoRoom, makeUser, signIn } from '../../test/utils';
+import { addLastMessage, id, makeRoom, makeTwoRoom, makeUser, signIn } from '../../test/shared-utils';
 
 
 const userId = '507f191e810c19729de860ec'
