@@ -3,20 +3,11 @@ import request from 'supertest'
 import { app } from '../../app';
 import { ChatBucket } from '../../models/chat-bucket';
 import { Conversation } from '../../models/conversation';
+import { makeRoom, makeUser } from '../../test/utils';
 
 const userId = '507f191e810c19729de860ea'
 const aRoomId = '6231dac6aba6adb436c4988c'
-const email = 'test@test.com'
-
-/*
-function signIn(): string {
-  const userJwt = jwt.sign({
-        id: id,
-        email: email
-  }, process.env.JWT_KEY!, { expiresIn: 60 * 60 })
-  return userJwt
-}
-*/
+const otherUserId = '507f191e810c19729de860eb'
 
 // TODO: after adding auth fix the tests
 
@@ -86,8 +77,9 @@ describe('with valid body/query/params', () => {
     
     it("should return 200 when the user can send a message to the room what he/she refers to", async () => {
         let body = makeValidBodyWith(userId);
-        let room = await makeARoomWithUser(userId);
-        
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)        
         await request(app)
                 .post(`/api/chat/rooms/${room._id.toString()}/messages`)
                 .send(body)
@@ -96,7 +88,9 @@ describe('with valid body/query/params', () => {
     
     it("should save message the user sent", async () => {
         let body = makeValidBodyWith(userId);
-        let room = await makeARoomWithUser(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
 
         await request(app)
                 .post(`/api/chat/rooms/${room._id.toString()}/messages`)
@@ -112,7 +106,9 @@ describe('with valid body/query/params', () => {
     
     it("should save the message as conversation's last message", async () => {
         let body = makeValidBodyWith(userId);
-        let room = await makeARoomWithUser(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
       
         await request(app)
                 .post(`/api/chat/rooms/${room._id.toString()}/messages`)
@@ -129,7 +125,9 @@ describe('with valid body/query/params', () => {
 
     it("should create a bucket and add this message to the bucket when there are not any related bucket", async () => {
         let body = makeValidBodyWith(userId);
-        let room = await makeARoomWithUser(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
         
         const messagesBeforeRequest = await ChatBucket.findOne({roomId: room._id})
         expect(messagesBeforeRequest).toBeNull()
@@ -149,7 +147,9 @@ describe('with valid body/query/params', () => {
 
     it("should increment bucket's count when new message added", async () => {
         let body = makeValidBodyWith(userId);
-        let room = await makeARoomWithUser(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
         let bucket = await makeABucketWith(room._id.toString(), userId, 2);
 
         await request(app)
@@ -167,7 +167,11 @@ describe('with valid body/query/params', () => {
     it("should create a new bucket when a bucket reached its capacity", async () => {
         const BUCKET_CAPACITY = 30
         let body = makeValidBodyWith(userId);
-        let room = await makeARoomWithUser(userId);
+        //let room = await makeARoomWithUser(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
+
         let bucket = await makeABucketWith(room._id.toString(), userId, BUCKET_CAPACITY);
 
         await request(app)
@@ -181,6 +185,26 @@ describe('with valid body/query/params', () => {
         expect(messages?.length).toEqual(2)
         expect(messages[1].count).toEqual(1)
     })
+
+    it("sets recent message of room after sending first message to room", async () => {
+        let body = makeValidBodyWith(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
+
+        await request(app)
+                .post(`/api/chat/rooms/${room._id.toString()}/messages`)
+                .send(body)
+                .expect(200);
+    
+
+        const conv = await Conversation.findById(room._id)
+        console.log(conv)
+        //const bucket = await ChatBucket.findOne({roomId: room._id})
+        expect(conv?.lastMessage).toBeDefined()
+        //expect(bucket?.messages.length).toEqual(1)
+    })
+
 })
 
 
@@ -191,7 +215,8 @@ function makeValidBodyWith(sender: string) {
     }
 }
 
-async function makeARoomWithUser(userId: string) {
+/*
+async function makeARoomWithUser(user: UserDoc) {
     const room = new Conversation({ participants: [
         new mongoose.Types.ObjectId(userId)
     ]})
@@ -199,6 +224,7 @@ async function makeARoomWithUser(userId: string) {
     const savedRoom = await room.save()
     return savedRoom
 }
+*/
 
 
 
@@ -228,7 +254,9 @@ async function makeABucketWith(roomId: string, senderId: string, n: number) {
 
 describe('makeABucketWith', () => {
     it("messages's length should be equal to bucket count", async () => {
-        let room = await makeARoomWithUser(userId);
+        let user = await makeUser(userId);
+        let otherUser = await makeUser(otherUserId)
+        let room = await makeRoom(user, otherUser)
         let bucket = await makeABucketWith(room._id.toString(), userId, 10);
 
         expect(bucket.messages.length).toEqual(bucket.count)

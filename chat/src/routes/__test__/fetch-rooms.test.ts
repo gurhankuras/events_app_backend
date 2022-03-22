@@ -3,19 +3,24 @@ import request from 'supertest'
 import { app } from '../../app';
 import { Conversation, ConversationDoc } from '../../models/conversation';
 import jwt from 'jsonwebtoken'
+import { addLastMessage, id, makeRoom, makeTwoRoom, makeUser, signIn } from '../../test/utils';
 
-function signIn(): string {
-    const userJwt = jwt.sign({
-          id: userId,
-          email: email
-    }, process.env.JWT_KEY!, { expiresIn: 60 * 60 })
-    return userJwt
-  }
 
 const userId = '507f191e810c19729de860ec'
 const otherUserId = '507f191e810c19729de860eb'
-const anotherUserId = '507f191e810c19729de860ec'
+const anotherUserId = '507f191e810c19729de860ed'
 const email = 'test@test.com'
+
+// makes a request to fetch current signed-in  users's messages
+async function makeRequest() {
+    const token = signIn()
+    const response = await request(app)
+                .get(`/api/chat/rooms`)
+                .set('access-token', token)
+                .send()
+                .expect(200);
+    return response
+}
 
 it("should return 401 when token not provided", async () => {
     await request(app)
@@ -31,14 +36,15 @@ it("should return empty array when there is no room the user in", async () => {
 })
 
 it("should return array of rooms when there is at least one room the user in", async () => {
-    await makeRoom(userId, otherUserId);
+    const user = await makeUser(userId);
+    const otherUser = await makeUser(otherUserId);
+    await makeRoom(user, otherUser);
     const response = await makeRequest()
     expect(response.body.length).toEqual(1)
 })
 
 it("should return array of rooms when there is at least one room the user in", async () => {
-    await makeRoom(userId, otherUserId);
-    await makeRoom(userId, anotherUserId);
+    const {firstRoom, secondRoom} = await makeTwoRoom();
     const response = await makeRequest()
     expect(response.body.length).toEqual(2)
 })
@@ -52,6 +58,7 @@ describe("should return array of rooms that sorted by lastMessage date if any ot
         expect(rooms.map(r => r.id)).toEqual([id(secondRoom), id(firstRoom)])
     })
 
+    
     it("one with last message, one without last message", async () => {
         const {firstRoom, secondRoom}  = await makeTwoRoom()
         await addLastMessage(firstRoom, {nowPlus: 5})
@@ -72,50 +79,7 @@ describe("should return array of rooms that sorted by lastMessage date if any ot
 
         expect(rooms.map(r => r.id)).toEqual([id(firstRoom), id(secondRoom)])
     })
+    
 })
 
-async function makeRoom(userId: string, otherUserId: string) {
-    const room = Conversation.build({participants: [
-        new mongoose.Types.ObjectId(userId),
-        new mongoose.Types.ObjectId(otherUserId),
-    ]})
-    const savedRoom = await room.save()
-    return savedRoom
-}
 
-
-
-function id(room: mongoose.Document): string {
-    return room._id.toString()
-}
-
-async function makeTwoRoom() {
-    const firstRoom = await makeRoom(userId, otherUserId);
-    const secondRoom = await makeRoom(userId, anotherUserId);
-    return {firstRoom, secondRoom}
-}
-
-// makes a request to fetch current signed-in  users's messages
-async function makeRequest() {
-    const token = signIn()
-    const response = await request(app)
-                .get(`/api/chat/rooms`)
-                .set('access-token', token)
-                .send()
-                .expect(200);
-    return response
-}
-
-
-async function addLastMessage(room: ConversationDoc, { nowPlus = 0 }: { nowPlus: number }) {
-    let milliseconds = new Date().getTime()
-    const date = new Date(milliseconds + (nowPlus * 1000))
-
-    room.lastMessage = {
-        senderName: 'Amanda',
-        sentAt: date,
-        text: 'text'
-    }
-    
-    await room.save();
-}

@@ -3,26 +3,12 @@ import { Request, Response } from 'express'
 import mongoose from 'mongoose';
 import { ChatBucket } from '../models/chat-bucket';
 import { body, query, param } from 'express-validator'
-import { ChatMessage } from '../models/chat-single';
 import { Conversation } from '../models/conversation';
 import { currentUser, logger, NotAuthorizedError, requiresAuth, validateRequest } from '@gkeventsapp/common';
 
 const router = express.Router()
 
-router.post("/api/chat/conversation", 
-currentUser, 
-requiresAuth, 
-async (req: Request, res: Response) => {
-    let conv = Conversation.build({
-        participants: [
-            new mongoose.Types.ObjectId("6238668a43a6cca1284b48e0"), 
-            new mongoose.Types.ObjectId()
-        ]
-    })
 
-    await conv.save()
-    return res.send(conv);
-})
 
 router.post("/api/chat/rooms/:roomId/messages", [
     body('sender')
@@ -64,7 +50,7 @@ router.post("/api/chat/rooms/:roomId/messages", [
  
     let b = await Conversation.updateOne({_id: new mongoose.Types.ObjectId(convId)}, {
         lastMessage: {
-            senderName: "Gurhan",
+            sender: new mongoose.Types.ObjectId(sender),
             sentAt: newDate,
             text: text
         }

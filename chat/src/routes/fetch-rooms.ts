@@ -18,6 +18,8 @@ async (req: Request, res: Response) => {
         participants: { $all: [ new mongoose.Types.ObjectId(userId) ] } 
     })
     .sort({"lastMessage.sentAt": -1, createdAt: -1})
+    .populate('participants')
+    .populate('lastMessage.sender')
     res.send(conversations)
 })
 

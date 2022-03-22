@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import request from 'supertest'
 import { app } from '../../app';
-import { Conversation } from '../../models/conversation';
 import { ChatBucket } from '../../models/chat-bucket';
+import { id, ids, iso, makeRoom, makeUser } from '../../test/utils';
 
 const aRoomId = '6231dac6aba6adb436c4988c'
 const userId = '507f191e810c19729de860ec'
@@ -72,7 +72,9 @@ describe('request validation errors', () => {
 // TODO: add auth and related tests
 describe('auth errors', () => {
     it("should return 200 with empty array when has no messages yet", async () => {
-        const room = await makeRoom(userId, otherUserId);
+        const user = await makeUser(userId);
+        const otherUser = await makeUser(otherUserId);
+        const room = await makeRoom(user, otherUser);
         
         const response = await request(app)
                 .get(`/api/chat/rooms/${id(room)}/messages`)
@@ -85,7 +87,9 @@ describe('auth errors', () => {
 
 describe('in controller', () => {
     it("should return 200 with empty array when has no messages yet", async () => {
-        const room = await makeRoom(userId, otherUserId);
+        const user = await makeUser(userId);
+        const otherUser = await makeUser(otherUserId);
+        const room = await makeRoom(user, otherUser);
         
         const response = await request(app)
                 .get(`/api/chat/rooms/${id(room)}/messages`)
@@ -96,7 +100,9 @@ describe('in controller', () => {
     })
     
     it("should return 200 with empty array when has no messages yet", async () => {
-        const room = await makeRoom(userId, otherUserId);
+        const user = await makeUser(userId);
+        const otherUser = await makeUser(otherUserId);
+        const room = await makeRoom(user, otherUser);
         
         await request(app)
             .post(`/api/chat/rooms/${id(room)}/messages`)
@@ -228,25 +234,3 @@ async function makeABucketWith(roomId: string, senderId: string, n: number) {
     return finalBucket
 }
 
-
-// TODO: centralize common functions
-async function makeRoom(userId: string, otherUserId: string) {
-    const room = Conversation.build({participants: [
-        new mongoose.Types.ObjectId(userId),
-        new mongoose.Types.ObjectId(otherUserId),
-    ]})
-    const savedRoom = await room.save()
-    return savedRoom
-}
-
-function id(doc: mongoose.Document): string {
-    return doc._id.toString()
-}
-
-function ids(docs: mongoose.Document[]): string[] {
-    return docs.map(doc => id(doc))
-}
-
-function iso(date: Date) {
-    return date.toISOString()
-}

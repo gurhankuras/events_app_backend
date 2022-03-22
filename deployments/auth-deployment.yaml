@@ -18,6 +18,10 @@ spec:
           env:
             - name: MONGO_URI
               value: mongodb://auth-mongo-srv:27017/auth
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: NATS_URL
               valueFrom:
                 configMapKeyRef:

@@ -49,6 +49,7 @@ async (req: Request, res: Response) => {
     .sort({creationDate: -1})
     .skip(page * limit)
     .limit(limit)
+    .populate('messages.sender')
     
     res.send(chat)
 })

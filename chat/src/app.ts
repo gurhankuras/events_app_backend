@@ -8,6 +8,7 @@ import { fetchMessagesRouter } from "./routes/fetch-messages";
 import { newMessageRouter } from "./routes/new-message";
 import { errorHandler, NotFoundError } from "@gkeventsapp/common";
 import { fetchRoomsRouter } from "./routes/fetch-rooms";
+import { createConversationRouter } from "./routes/create-conversation";
 
 const app = express();
 const server = createServer(app)
@@ -31,6 +32,7 @@ app.use(json())
 app.use(fetchMessagesRouter)
 app.use(newMessageRouter)
 app.use(fetchRoomsRouter)
+app.use(createConversationRouter)
 
 app.all('*', async () => {
     throw new NotFoundError();
