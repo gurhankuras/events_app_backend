@@ -31,10 +31,10 @@ export async function makeRoom(user: UserDoc, otherUser: UserDoc): Promise<Conve
     return savedRoom
 }
 
-export async function makeUser(userId: string): Promise<UserDoc> {
+export async function makeUser(userId: string, name: string = "Gurhan"): Promise<UserDoc> {
     const user = User.build({
         _id: new mongoose.Types.ObjectId(userId),
-        name: "Gurhan"
+        name: name
     })
 
     await user.save()

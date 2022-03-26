@@ -32,8 +32,6 @@ async (req: Request, res: Response) => {
     let text = req.body.text as string;
     let image = req.body.image
 
-    logger.debug("NEW-MESSAGE ENDPOINT")
-
     let conversation = await Conversation.findOne( {
         _id: convId,  
         participants: { $all: [ new mongoose.Types.ObjectId(req.currentUser!.id) ] } 

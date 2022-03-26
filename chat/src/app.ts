@@ -6,33 +6,35 @@ import 'express-async-errors'
 import { json } from 'body-parser'
 import { fetchMessagesRouter } from "./routes/fetch-messages";
 import { newMessageRouter } from "./routes/new-message";
-import { errorHandler, NotFoundError } from "@gkeventsapp/common";
+import { errorHandler, logger, NotFoundError } from "@gkeventsapp/common";
 import { fetchRoomsRouter } from "./routes/fetch-rooms";
 import { createConversationRouter } from "./routes/create-conversation";
+import { fetchUsersRouter } from "./routes/fetch-users";
 
 const app = express();
 const server = createServer(app)
 const io = new Server(server, { allowEIO3: true });
+export enum ClientEvent {
+    SEND = "client:send"
+}
+
+export enum ServerEvent {
+    SEND = "server:send"
+}
 
 
-io.on("connection", (socket) => {
-    console.log('connection')
-    socket.on("toServer", (data) => {
-        console.log(data);
-        socket.emit('hello', `${data} - server`)
-    })
-    socket.on('disconnect', () => {
-        console.log('disconnected')
-    })
-    socket.emit('hello', 'bak ben geldim')
-});
+
 
 app.use(json())
-
+app.use((req, res, next) => {
+    //console.log(req.headers)
+    next()
+})
 app.use(fetchMessagesRouter)
 app.use(newMessageRouter)
 app.use(fetchRoomsRouter)
 app.use(createConversationRouter)
+app.use(fetchUsersRouter)
 
 app.all('*', async () => {
     throw new NotFoundError();
