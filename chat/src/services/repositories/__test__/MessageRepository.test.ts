@@ -1,8 +1,9 @@
 import { iso, makeABucketWith, makeRoom, makeUser } from "../../../test/shared-utils";
 import { roomRepository } from "../MongoDBRoomRepository";
-
+import { randomBytes } from 'crypto'
 import { messageRepository } from "../MongoDBMessageRepository";
 import { ChatBucket } from "../../../models/chat-bucket";
+import e from "express";
 
 const userId = '507f191e810c19729de860ec'
 const otherUserId = '507f191e810c19729de860eb'
@@ -103,6 +104,19 @@ describe('add', () => {
         
         expect(messageUserSent?.sender.toString()).toEqual(userId)
         expect(messageUserSent?.text).toEqual(text)
+    })
+})
+
+describe('add2', () => {
+
+    it("should add the message", async () => {
+        const user = await makeUser(userId);
+        const otherUser = await makeUser(otherUserId)
+        const room = await roomRepository.createWithTwoUser(user.id, otherUser.id, false)
+        const text = "hello"
+        const sentMessage = await messageRepository.add(room.id, {text: text, sender: user.id, sentAt: new Date()});
+
+        console.log(sentMessage)
     })
 })
 

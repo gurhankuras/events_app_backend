@@ -53,6 +53,10 @@ const messageSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'User'
     },
+    nonce: {
+        type: String,
+        required: false
+    },
     image: {
         type: String,
         required: false
