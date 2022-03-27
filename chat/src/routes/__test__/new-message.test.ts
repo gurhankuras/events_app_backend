@@ -78,7 +78,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!.id}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     })
     
     it("should save message the user sent", async () => {
@@ -87,7 +87,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!._id.toString()}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     
         const messages = await ChatBucket.findOne({roomId: room!._id})
         const messageUserSent = messages?.messages[0] 
@@ -103,7 +103,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!._id.toString()}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     
         const conversation = await Conversation.findOne({_id: room!._id})
         const lastMessage = conversation?.lastMessage
@@ -113,7 +113,7 @@ describe('with auth and valid body/query/params', () => {
         expect(lastMessage?.text).toEqual(body.text)
     })
 
-    it("should create a bucket and add this message to the bucket when there are not any related bucket", async () => {
+    it("should create a bucket and add this message to the bucket when there are no buckets of room", async () => {
         
         const messagesBeforeRequest = await ChatBucket.findOne({roomId: room!._id})
         expect(messagesBeforeRequest).toBeNull()
@@ -122,7 +122,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!._id.toString()}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     
 
         const messages = await ChatBucket.findOne({roomId: room!._id})
@@ -140,7 +140,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!._id.toString()}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     
 
         const messages = await ChatBucket.findOne({roomId: room!._id})
@@ -158,7 +158,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!._id.toString()}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     
 
         const messages = await ChatBucket.find({roomId: room!._id})
@@ -173,7 +173,7 @@ describe('with auth and valid body/query/params', () => {
                 .post(`/api/chat/rooms/${room!._id.toString()}/messages`)
                 .set('access-token', token!)
                 .send(body)
-                .expect(200);
+                .expect(201);
     
         const conv = await Conversation.findById(room!._id)
         expect(conv?.lastMessage).toBeDefined()

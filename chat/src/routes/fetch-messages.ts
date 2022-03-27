@@ -4,6 +4,7 @@ import { Request, Response } from 'express'
 import { param, query } from 'express-validator';
 import mongoose from 'mongoose';
 import { ChatBucket } from '../models/chat-bucket';
+import { messageRepository } from '../services/repositories/MongoDBMessageRepository';
 
 const router = express.Router()
 
@@ -35,23 +36,12 @@ async (req: Request, res: Response) => {
     let roomId = req.params.roomId as string
     let page =  Number.parseInt((req.query.page || '0') as string)
     let limit = Number.parseInt((req.query.limit || '1') as string)
-    let after = req.query.after
+    let after = req.query.after as string | undefined
 
-    let filter = { roomId: new mongoose.Types.ObjectId(roomId) }
+    const options = {page: page, limit: limit, after: after}
+    const messageBlocks = await messageRepository.paginatedByCreation({roomId: roomId, options: options })
     
-    if (after) {
-        // @ts-ignore
-        filter.creationDate = {$gt: after}
-    }
-    // TODO: index for roomId
-    let chat = await ChatBucket.find(filter)
-    // TODO: index for creationDate
-    .sort({creationDate: -1})
-    .skip(page * limit)
-    .limit(limit)
-    .populate('messages.sender')
-    
-    res.send(chat)
+    res.status(200).send(messageBlocks)
 })
 
 

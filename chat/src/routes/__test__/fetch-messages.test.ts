@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import request from 'supertest'
 import { app } from '../../app';
 import { ChatBucket } from '../../models/chat-bucket';
-import { id, ids, iso, makeRoom, makeUser, signIn } from '../../test/shared-utils';
+import { id, ids, iso, makeABucketWith, makeRoom, makeUser, signIn } from '../../test/shared-utils';
 
 const aRoomId = '6231dac6aba6adb436c4988c'
 const userId = '507f191e810c19729de860ec'
@@ -111,7 +111,7 @@ describe('in controller', () => {
             .send({
                 text: 'text'
             })
-            .expect(200);
+            .expect(201);
     
         const response = await request(app)
                 .get(`/api/chat/rooms/${room.id}/messages`)
@@ -207,31 +207,4 @@ describe('in controller', () => {
 
 
 
-async function makeABucketWith(roomId: string, senderId: string, n: number) {
-    const date = new Date()
-    let bucket = ChatBucket.build({
-        roomId: new mongoose.Types.ObjectId(roomId), 
-        creationDate: date
-    })
-
-    const savedBucket = await bucket.save()
-    let messages = []
-    messages.push({
-        sender: new mongoose.Types.ObjectId(senderId),
-        sentAt: date,
-        text: "Demo",
-    })
-    for (let i = 1; i < n; ++i) {
-        messages.push({
-            sender: new mongoose.Types.ObjectId(senderId),
-            sentAt: new Date(),
-            text: "Demo",
-        })
-    }
-    // @ts-ignore
-    savedBucket.messages =  messages
-    savedBucket.count = n
-    const finalBucket = await savedBucket.save()
-    return finalBucket
-}
 

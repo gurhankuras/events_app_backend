@@ -1,21 +1,21 @@
-import { Conversation } from "../models/conversation";
 import { currentUser, NotFoundError, requiresAuth, validateRequest } from '@gkeventsapp/common';
 import express from 'express'
 import { Request, Response } from 'express'
-import mongoose from 'mongoose';
-import { User } from "../models/user";
-import { roomRepository, UserNotFound } from "../services/repositories/RoomRepository";
-import { body } from "express-validator";
+import { roomRepository } from "../services/repositories/MongoDBRoomRepository";
+import { body, ValidationChain } from "express-validator";
+import { UserNotFound } from '../services/repositories/errors/UserNotFound';
 
 const router = express.Router()
-router.post("/api/chat/conversation",
-[
+
+const validators: [ValidationChain] = [
     body('userId')
     .isString()
     .not()
     .isEmpty()
 ]
-,
+
+router.post("/api/chat/conversation",
+validators,
 validateRequest, 
 currentUser, 
 requiresAuth, 
@@ -33,6 +33,8 @@ async (req: Request, res: Response) => {
         throw new Error("Unexpected Error")
     }
 })
+
+
 
 
 

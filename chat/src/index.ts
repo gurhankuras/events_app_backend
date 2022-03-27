@@ -8,13 +8,19 @@ import { logger } from '@gkeventsapp/common';
 
 const PORT = 3000
 
-io.on("connection", (socket) => {
+io.use((socket, next) => {
+    logger.info('a socket arrived')
     const headers = socket.handshake.headers
     const roomId = headers['room']
     logger.info(`connection access-token: ${headers['access-token']}\nroomId: ${headers['room']}`)
     if (roomId) {
         socket.join(roomId)
     }
+    next()
+})
+
+io.on("connection", (socket) => {
+   
     socket.on(ClientEvent.SEND, (data) => {
         console.log(data);
         let decodedMessage = JSON.parse(data)

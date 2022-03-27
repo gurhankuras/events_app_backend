@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken'
 import { User, UserDoc } from '../models/user';
 import { Conversation, ConversationDoc } from '../models/conversation';
+import { ChatBucket } from '../models/chat-bucket';
 
 
 const userId = '507f191e810c19729de860ec'
@@ -67,6 +68,14 @@ export function iso(date: Date): string {
 
 
 
+export function nowSecondsLater(seconds: number) {
+    return secondsLater(new Date(), seconds)
+}
+export function secondsLater(date: Date, seconds: number) {
+    let milliseconds = date.getTime()
+    return new Date(milliseconds + (seconds * 1000))
+}
+
 export async function addLastMessage(room: ConversationDoc, { nowPlus = 0 }: { nowPlus: number }) {
     let milliseconds = new Date().getTime()
     const date = new Date(milliseconds + (nowPlus * 1000))
@@ -78,4 +87,33 @@ export async function addLastMessage(room: ConversationDoc, { nowPlus = 0 }: { n
     }
     
     await room.save();
+}
+
+
+export async function makeABucketWith(roomId: string, senderId: string, n: number) {
+    const date = new Date()
+    let bucket = ChatBucket.build({
+        roomId: new mongoose.Types.ObjectId(roomId), 
+        creationDate: date
+    })
+
+    const savedBucket = await bucket.save()
+    let messages = []
+    messages.push({
+        sender: new mongoose.Types.ObjectId(senderId),
+        sentAt: date,
+        text: "Demo",
+    })
+    for (let i = 1; i < n; ++i) {
+        messages.push({
+            sender: new mongoose.Types.ObjectId(senderId),
+            sentAt: new Date(),
+            text: "Demo",
+        })
+    }
+    // @ts-ignore
+    savedBucket.messages =  messages
+    savedBucket.count = n
+    const finalBucket = await savedBucket.save()
+    return finalBucket
 }

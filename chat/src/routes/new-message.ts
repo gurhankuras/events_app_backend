@@ -4,7 +4,10 @@ import mongoose from 'mongoose';
 import { ChatBucket } from '../models/chat-bucket';
 import { body, query, param } from 'express-validator'
 import { Conversation } from '../models/conversation';
-import { currentUser, logger, NotAuthorizedError, requiresAuth, validateRequest } from '@gkeventsapp/common';
+import { currentUser, logger, NotAuthorizedError, NotFoundError, requiresAuth, validateRequest } from '@gkeventsapp/common';
+import { messageRepository } from '../services/repositories/MongoDBMessageRepository';
+import { roomRepository } from '../services/repositories/MongoDBRoomRepository';
+import { RoomNotFound } from '../services/repositories/errors/RoomNotFound';
 
 const router = express.Router()
 
@@ -32,44 +35,21 @@ async (req: Request, res: Response) => {
     let text = req.body.text as string;
     let image = req.body.image
 
-    let conversation = await Conversation.findOne( {
-        _id: convId,  
-        participants: { $all: [ new mongoose.Types.ObjectId(req.currentUser!.id) ] } 
-    })
+    const creationDate = new Date()
+    const senderId = req.currentUser!.id
+    const message = {text: text, image: image}
+    try {
+        const roomResult = await roomRepository.updateLastMessage(convId, {...message, senderId: senderId, sentAt: creationDate})
+       
+        const result =  await messageRepository.add(convId, {text: text, sender: senderId, sentAt: creationDate});
+        res.status(201).send(result)
 
-    if (!conversation) {
-        throw new NotAuthorizedError();
-    }
-
-    let newDate = new Date()
- 
-    let b = await Conversation.updateOne({_id: new mongoose.Types.ObjectId(convId)}, {
-        lastMessage: {
-            sender: new mongoose.Types.ObjectId(req.currentUser!.id),
-            sentAt: newDate,
-            text: text
+    } catch (error) {
+        if (error instanceof RoomNotFound) {
+            throw new NotFoundError();
         }
-    })
-    
-    let a = await ChatBucket.updateOne({roomId: new mongoose.Types.ObjectId(convId), count: { $lt: 30 }, creationDate: {$lt: newDate}}, {
-        "$push": {
-            "messages": {
-                sender: new mongoose.Types.ObjectId(req.currentUser!.id),
-                sentAt: newDate,
-                text: text,
-                image: image,
-            }
-        },
-            "$inc": {"count": 1},
-            "$setOnInsert": { "creationDate": newDate }
-        },
-        {upsert: true}
-    )
-    res.send(a)
+        throw error
+    }
 })
-
-
-
-// currentUser, requiresAuth,
 
 export { router as newMessageRouter}
