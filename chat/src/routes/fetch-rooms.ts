@@ -1,6 +1,7 @@
-import { currentUser, requiresAuth } from '@gkeventsapp/common';
+import { requiresAuth } from '@gkeventsapp/common';
 import express from 'express'
 import { Request, Response } from 'express'
+import { currentUser } from '../middlewares/current-user';
 import { roomRepository } from '../services/repositories/MongoDBRoomRepository';
 
 const router = express.Router()

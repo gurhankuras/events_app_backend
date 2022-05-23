@@ -1,0 +1,11 @@
+FROM rabbitmq:3.7-management
+
+#Rabbitmq config
+COPY rabbitmq.conf /etc/rabbitmq/rabbitmq.conf
+
+#Install vim (edit file)
+RUN ["apt-get", "update"]
+RUN ["apt-get", "-y", "install", "vim"]
+
+#Enable plugins rabbitmq
+RUN rabbitmq-plugins enable --offline rabbitmq_mqtt rabbitmq_federation_management rabbitmq_stomp

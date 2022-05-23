@@ -37,7 +37,7 @@ const Subdoc = mongoose.model('Subdoc', subdocumentSchema);
 const lastMessageSchema = new mongoose.Schema({
     text: String,
     sender: {
-        type: mongoose.Types.ObjectId,
+        type: String,
         ref: 'User'
     },
     sentAt: Date
@@ -50,7 +50,7 @@ let ConversationSchema = new mongoose.Schema({
     },
 
     participants: {
-        type: [mongoose.Types.ObjectId],
+        type: [String],
         ref: 'User',
         required: true,
     },

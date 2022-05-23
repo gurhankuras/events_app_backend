@@ -4,10 +4,11 @@ import mongoose from 'mongoose';
 import { ChatBucket } from '../models/chat-bucket';
 import { body, query, param } from 'express-validator'
 import { Conversation } from '../models/conversation';
-import { currentUser, logger, NotAuthorizedError, NotFoundError, requiresAuth, validateRequest } from '@gkeventsapp/common';
+import { logger, NotAuthorizedError, NotFoundError, requiresAuth, validateRequest } from '@gkeventsapp/common';
 import { messageRepository } from '../services/repositories/MongoDBMessageRepository';
 import { roomRepository } from '../services/repositories/MongoDBRoomRepository';
 import { RoomNotFound } from '../services/repositories/errors/RoomNotFound';
+import { currentUser } from '../middlewares/current-user';
 
 const router = express.Router()
 

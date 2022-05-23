@@ -6,6 +6,7 @@ import { UserCreatedEvent } from "@gkeventsapp/common"
 import { User } from "../../models/user"
 import mongoose from "mongoose"
 
+/*
 export class UserCreatedListener extends Listener<UserCreatedEvent> {
     readonly subject: Subjects.UserCreatedEvent = Subjects.UserCreatedEvent
     queueGroupName: string = 'chat-service-queue-group'
@@ -17,3 +18,4 @@ export class UserCreatedListener extends Listener<UserCreatedEvent> {
         msg.ack()
     }
 }
+*/

@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import request from 'supertest'
 import { app } from '../../app';
 import { ChatBucket } from '../../models/chat-bucket';
-import { id, ids, iso, makeABucketWith, makeRoom, makeUser, signIn } from '../../test/shared-utils';
+import { iso, makeABucketWith, makeRoom, makeUser, signIn } from '../../test/shared-utils';
 
 const aRoomId = '6231dac6aba6adb436c4988c'
 const userId = '507f191e810c19729de860ec'
@@ -135,7 +135,7 @@ describe('in controller', () => {
         const buckets = response.body as Array<any> 
     
         expect(buckets.length).toEqual(1)
-        expect(buckets[0].id).toEqual(id(secondBucket))
+        expect(buckets[0].id).toEqual(secondBucket._id.toString())
     })
     
     it("should return 200 with buckets sorted by creation date", async () => {

@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  chat-service-mongo:
+    image: "mongo:4.4"
+    container_name: chat-service-mongo
+    ports:
+      - "27018:27017"
+  rabbitmq:
+    hostname: rabbitmq
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5673:5673"
+      - "5672:5672"
+      - "15672:15672"

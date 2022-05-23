@@ -22,9 +22,10 @@ router.post('/api/users/signup',
     .withMessage(invalidPasswordErrorMessage)
 ],
 
-validateRequest,
+//validateRequest,
 async (req: Request, res: Response) => {
     logger.debug('signup route')
+    console.log(req.body)
     const { email, password } = req.body;
 
     const user = await User.findOne({ email })

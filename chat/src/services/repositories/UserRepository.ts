@@ -7,7 +7,7 @@ export class UserRepository {
     }
 
     async create({id, name}: {id: string, name: string}) {
-        const user = User.build({_id: new mongoose.Types.ObjectId(id), name: name})
+        const user = User.build({_id: id, name: name})
         const savedUser = await user.save()
         return savedUser
     }

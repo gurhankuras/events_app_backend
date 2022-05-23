@@ -18,7 +18,7 @@ export async function makeABucketWith(roomId: string, senderId: string, n: numbe
     let messages = []
     for (let i = 0; i < n; ++i) {
         messages.push({
-            sender: new mongoose.Types.ObjectId(senderId),
+            sender: senderId,
             sentAt: new Date(),
             text: "Demo",
         })

@@ -12,9 +12,51 @@ export class MongoDBRoomRepository implements RoomRepository {
 
     }
 
+    async getOneUsersInIfAny(userId: string, otherUserId: string) {
+        const room = await Conversation.findOne(
+            {
+                participants: { 
+                    $all: [
+                       userId,
+                       otherUserId
+                    ]
+                }
+            }
+        )
+        return room
+    }
+
+    async getOneUsersIn(userId: string, otherUserId: string) {
+        const room = await Conversation.findOneAndUpdate(
+            {
+                participants: { 
+                    $all: [
+                        { $elemMatch: { $eq: userId }},
+                        { $elemMatch: { $eq: otherUserId }}
+                    ]
+                }
+            }, 
+            { 
+                "$setOnInsert": {
+                    "participants": [
+                        userId, 
+                       otherUserId
+                   ],
+               }
+            }, 
+            {
+                upsert: true,
+                new: true
+            }
+        )
+        .populate('participants')
+        .populate('lastMessage.sender')
+        return room
+    }
+
     async getByLatest(userId: string, options: {participants: boolean, sender: boolean}) {
         const query = Conversation.find( {
-            participants: { $all: [ new mongoose.Types.ObjectId(userId) ] } 
+            participants: { $all: [ userId ] } 
         })
         .sort({"lastMessage.sentAt": -1, createdAt: -1})
 
@@ -37,7 +79,7 @@ export class MongoDBRoomRepository implements RoomRepository {
     async updateLastMessage(roomId: string, message: LastMessage) {
         let conversation = await Conversation.findOne( {
             _id: roomId,  
-            participants: { $all: [ new mongoose.Types.ObjectId(message.senderId) ] } 
+            participants: { $all: [ message.senderId ] } 
         })
     
         if (!conversation) {
@@ -47,7 +89,7 @@ export class MongoDBRoomRepository implements RoomRepository {
         // TODO: merge finding and updating conversation
         let b = await Conversation.updateOne({_id: new mongoose.Types.ObjectId(roomId)}, {
             lastMessage: {
-                sender: new mongoose.Types.ObjectId(message.senderId),
+                sender: message.senderId,
                 sentAt: message.sentAt,
                 text: message.text
             }

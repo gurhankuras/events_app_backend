@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 
 interface UserAttributes {
-    _id: mongoose.Types.ObjectId;
+    _id: string;
     name: string;
     image?: string;
 }
@@ -19,6 +19,10 @@ interface UserModel extends mongoose.Model<UserDoc> {
 
 
 let UserSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true,
+    },
     name: {
         type: String,
         required: true

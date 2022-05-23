@@ -157,6 +157,65 @@ describe('getByLatest', () => {
     })
 })
 
+describe('getOneRoomUsersInIfAny', () => {
+    test('should return null if a room that the users in do not exist', async () => {
+        const user = await makeUser(userId, "John")
+        const otherUser = await makeUser(otherUserId, "Jane")
+
+        expect(roomRepository.getOneUsersInIfAny(user.id, otherUser.id)).resolves.toEqual(null)
+    })
+
+    test('should return room if a room that the users in already exists', async () => {
+        const user = await makeUser(userId, "John")
+        const otherUser = await makeUser(otherUserId, "Jane")
+        const room1 = await roomRepository.createWithTwoUser(user.id, otherUser.id)
+        const fetched = await roomRepository.getOneUsersInIfAny(user.id, otherUser.id)
+        expect(fetched?.id).toEqual(room1.id.toString())
+    })
+})
+
+describe('getOneRoomUsersIn', () => {
+    test('should create a new one and return it if a room that the users in do not exist', async () => {
+        const user = await makeUser(userId, "John")
+        const otherUser = await makeUser(otherUserId, "Jane")
+
+        await expect(roomRepository.getOneUsersInIfAny(user.id, otherUser.id)).resolves.toEqual(null)
+        await expect(roomRepository.getOneUsersIn(user.id, otherUser.id)).resolves.toBeDefined()
+        await expect(roomRepository.getOneUsersInIfAny(user.id, otherUser.id)).resolves.not.toEqual(null)
+
+    })
+
+    test('should return existing one if a room that the users in already exists', async () => {
+        const user = await makeUser(userId, "John")
+        const otherUser = await makeUser(otherUserId, "Jane")
+
+        expect(roomRepository.getOneUsersInIfAny(user.id, otherUser.id)).resolves.toEqual(null)
+
+        const room1 = await roomRepository.createWithTwoUser(user.id, otherUser.id)
+        const room = await roomRepository.getOneUsersIn(user.id, otherUser.id);
+
+        expect(room.id).toEqual(room1.id.toString())
+    })
+
+    /*
+    test('should return existing one if a room that the users in already exists', async () => {
+        const user = await makeUser(userId, "John")
+        const otherUser = await makeUser(otherUserId, "Jane")
+        //const anotherUser = await makeUser(anotherUserId, "Gurhan")
+
+        expect(roomRepository.getOneUsersInIfAny(user.id, otherUser.id)).resolves.toEqual(null)
+
+        const room1 = await roomRepository.createWithTwoUser(user.id, otherUser.id);
+        const room2 = await roomRepository.getOneUsersIn(user.id, anotherUserId)
+
+        console.log(room2);
+
+
+        expect(room2).toBeNull();
+    })
+    */
+})
+
 
 async function createTwoUser() {
     const user = await userRepository.create({id: userId, name: "Jane"});

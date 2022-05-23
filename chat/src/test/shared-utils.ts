@@ -34,7 +34,7 @@ export async function makeRoom(user: UserDoc, otherUser: UserDoc): Promise<Conve
 
 export async function makeUser(userId: string, name: string = "Gurhan"): Promise<UserDoc> {
     const user = User.build({
-        _id: new mongoose.Types.ObjectId(userId),
+        _id: userId,
         name: name
     })
 
@@ -44,9 +44,7 @@ export async function makeUser(userId: string, name: string = "Gurhan"): Promise
 
 
 
-export function id(room: mongoose.Document): string {
-    return room._id.toString()
-}
+
 
 export async function makeTwoRoom() {
     const user = await makeUser(userId);
@@ -58,9 +56,7 @@ export async function makeTwoRoom() {
     return {firstRoom, secondRoom}
 }
 
-export function ids(docs: mongoose.Document[]): string[] {
-    return docs.map(doc => id(doc))
-}
+
 
 export function iso(date: Date): string {
     return date.toISOString()
@@ -81,7 +77,7 @@ export async function addLastMessage(room: ConversationDoc, { nowPlus = 0 }: { n
     const date = new Date(milliseconds + (nowPlus * 1000))
 
     room.lastMessage = {
-        sender: User.build({_id: new mongoose.Types.ObjectId(userId), name: 'Amanda'}),
+        sender: User.build({_id: userId, name: 'Amanda'}),
         sentAt: date,
         text: 'text'
     }
@@ -100,13 +96,13 @@ export async function makeABucketWith(roomId: string, senderId: string, n: numbe
     const savedBucket = await bucket.save()
     let messages = []
     messages.push({
-        sender: new mongoose.Types.ObjectId(senderId),
+        sender: senderId,
         sentAt: date,
         text: "Demo",
     })
     for (let i = 1; i < n; ++i) {
         messages.push({
-            sender: new mongoose.Types.ObjectId(senderId),
+            sender: senderId,
             sentAt: new Date(),
             text: "Demo",
         })

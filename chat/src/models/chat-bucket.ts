@@ -32,7 +32,7 @@ interface ChatBucketAttributes {
 
 interface ChatBucketDoc extends mongoose.Document {
     messages: {
-        sender: mongoose.Types.ObjectId;
+        sender: String;
         text: string;
         sentAt: Date;
         image: string;
@@ -50,7 +50,7 @@ interface ChatBucketModel extends mongoose.Model<ChatBucketDoc> {
 const messageSchema = new mongoose.Schema({
     text: String,
     sender: {
-        type: mongoose.Types.ObjectId,
+        type: String,
         ref: 'User'
     },
     nonce: {

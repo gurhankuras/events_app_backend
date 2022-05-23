@@ -3,7 +3,7 @@ import request from 'supertest'
 import { app } from '../../app';
 import { Conversation, ConversationDoc } from '../../models/conversation';
 import jwt from 'jsonwebtoken'
-import { addLastMessage, id, makeRoom, makeTwoRoom, makeUser, signIn } from '../../test/shared-utils';
+import { addLastMessage, makeRoom, makeTwoRoom, makeUser, signIn } from '../../test/shared-utils';
 
 
 const userId = '507f191e810c19729de860ec'
@@ -55,7 +55,7 @@ describe("should return array of rooms that sorted by lastMessage date if any ot
         const response = await makeRequest()
         const rooms = response.body as Array<any>
     
-        expect(rooms.map(r => r.id)).toEqual([id(secondRoom), id(firstRoom)])
+        expect(rooms.map(r => r.id)).toEqual([secondRoom._id.toString(), firstRoom._id.toString()])
     })
 
     
@@ -66,7 +66,7 @@ describe("should return array of rooms that sorted by lastMessage date if any ot
         const response = await makeRequest()
         const rooms = response.body as Array<any>
     
-        expect(rooms.map(r => r.id)).toEqual([id(firstRoom), id(secondRoom)])
+        expect(rooms.map(r => r.id)).toEqual([firstRoom._id.toString(), secondRoom._id.toString()])
     })
 
     it("with last messages", async () => {
@@ -77,7 +77,7 @@ describe("should return array of rooms that sorted by lastMessage date if any ot
         const response = await makeRequest()
         const rooms = response.body as Array<any>
 
-        expect(rooms.map(r => r.id)).toEqual([id(firstRoom), id(secondRoom)])
+        expect(rooms.map(r => r.id)).toEqual([firstRoom._id.toString(), secondRoom._id.toString()])
     })
     
 })

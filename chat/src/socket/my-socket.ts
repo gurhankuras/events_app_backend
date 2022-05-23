@@ -5,4 +5,5 @@ export interface MySocket extends Socket
 {
   currentUser?: SocketUserPayload;
   roomId?: string;
+  roomCreationRequestWith?: string
 }

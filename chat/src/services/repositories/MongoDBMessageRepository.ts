@@ -47,7 +47,7 @@ class MongoDBMessageRepository implements MessageRepository {
         const doc = await ChatBucket.findOneAndUpdate({roomId: new mongoose.Types.ObjectId(roomId), count: { $lt: 30 }, creationDate: {$lt: message.sentAt}}, {
             "$push": {
                 "messages": {
-                    sender: new mongoose.Types.ObjectId(message.sender),
+                    sender: message.sender,
                     sentAt: message.sentAt,
                     text: message.text,
                     image: message.image,

@@ -24,7 +24,7 @@ async (req: Request, res: Response) => {
 function makeFilter(q: string | undefined, userId: string) {
     let filter: {_id: any, name?: any} = {
         _id: { 
-            $not: { $eq: new mongoose.Types.ObjectId(userId) }, 
+            $not: { $eq: userId }, 
         }
     }
     if (q) {
